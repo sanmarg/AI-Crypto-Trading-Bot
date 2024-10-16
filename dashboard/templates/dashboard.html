@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Binance Account Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        .chart-container {
+            width: 80%;
+            margin: auto;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #logMessage {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Binance Account Dashboard</h1>
+
+<h2>Account Summary</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Asset</th>
+            <th>Free</th>
+            <th>Locked</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for balance in balances %}
+        <tr>
+            <td>{{ balance.asset }}</td>
+            <td>{{ balance.free }}</td>
+            <td>{{ balance.locked }}</td>
+            <td>{{ balance.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Detailed BTCUSDT Trade History</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Symbol</th>
+            <th>Trade Type</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Quote Quantity</th>
+            <th>Commission</th>
+            <th>Commission Asset</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for trade in detailed_trades %}
+        <tr>
+            <td>{{ trade.symbol }}</td>
+            <td>{{ 'Buy' if trade.isBuyer else 'Sell' }}</td>
+            <td>{{ trade.price }}</td>
+            <td>{{ trade.qty }}</td>
+            <td>{{ trade.quoteQty }}</td>
+            <td>{{ trade.commission }}</td>
+            <td>{{ trade.commissionAsset }}</td>
+            <td>{{ trade.time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Profit and Loss (PnL)</h2>
+<p><strong>Total PnL:</strong> {{ pnl_data.pnl }} USD</p>
+<p><strong>Current BTC Holdings:</strong> {{ pnl_data.btc_balance }} BTC</p>
+<p><strong>BTC Buy Cost:</strong> {{ pnl_data.total_btc_spent }} USD</p>
+<p><strong>Current BTC Price:</strong> {{ pnl_data.current_btc_price }} USD</p>
+<p><strong>Current BTC Value:</strong> {{ pnl_data.current_btc_value }} USD</p>
+
+<h2>Trade History Chart</h2>
+<div class="chart-container">
+    {% if chart_image %}
+    <img src="data:image/png;base64,{{ chart_image }}" alt="Trade History Chart">
+    {% else %}
+    <p>No trade history available to display the chart.</p>
+    {% endif %}
+</div>
+
+<h2>Fetch Logs</h2>
+<button id="fetchLogsButton">Fetch Logs</button>
+<p id="logMessage"></p>
+
+<script>
+    document.getElementById('fetchLogsButton').addEventListener('click', function() {
+        fetch('/fetch_logs')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('logMessage').textContent = data.message;
+        });
+    });
+</script>
+
+</body>
+</html>
